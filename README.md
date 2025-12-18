@@ -12,7 +12,7 @@
 ### Problem
 
 1. Github desktop AI generator button is great. But your AI quota quickly runs out on free account
-2. Writing git messages manually takes too much time, and when rushing: `"Update"`, `"New update"`, `"new new update"` 😅
+2. Writing git messages manually takes too much time, and when rushing: `"Update"`, `"New update"`, `"new new update"`
 3. Using Claude/OpenAI/Gemini to create git messages for you is overkill when it can be done with Apple Inteligence locally on your own Apple Silicon CPU (M1-M5)
 
 ### Solution
@@ -25,7 +25,7 @@
 
 1. In terminal: `curl https://edgeleap.github.io/diffsense.sh` (installs the diffsense bash functions in an alias)
 2. Download the [Diffsense Shortcut](https://www.icloud.com/shortcuts/6d93e2d1f09e4e8aa55b78524fb42dae) (this will install the shortcut in your shortcut app)
-3. Call `diffsense` in your terminal 👉 A shortcut window with your AI generated git msg pops up, click ok and ✅
+3. Call `diffsense` in your terminal. A shortcut window with the AI generated git msg pops up, click ok and your done.
 
 **Example git commit message:**  
 ```
