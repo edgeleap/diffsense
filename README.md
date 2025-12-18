@@ -7,6 +7,8 @@
 ![Git 2.50.0+](https://img.shields.io/badge/git-2.50.0+-F05032?style=for-the-badge&logo=git&logoColor=white)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
+<img width="355" alt="img" src="https://github.com/edgeleap/diffsense/blob/main/demo.gif?raw=true">
+
 ### Problem
 
 1. Github desktop AI generator button is great. But your AI quota quickly runs out on free account
@@ -30,8 +32,6 @@
 Add error handling in login flow
 Handle missing token case to prevent crash when API response is null.
 ```
-
-<img width="355" alt="img" src="https://github.com/edgeleap/diffsense/blob/main/popup.gif?raw=true">
 
 ### Customisation
 
