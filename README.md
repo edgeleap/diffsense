@@ -7,6 +7,8 @@
 ![Git 2.50.0+](https://img.shields.io/badge/git-2.50.0+-F05032?style=for-the-badge&logo=git&logoColor=white)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
+<img width="355" alt="img" src="https://github.com/edgeleap/diffsense/blob/main/popup.gif?raw=true">
+
 ### Problem
 
 1. Github desktop AI generator button is great. But your AI quota quickly runs out on free account
@@ -18,8 +20,6 @@
 1. DiffSense is a terminal call that creates a AI generated git message for free. 
 2. DiffSense uses a bash command, a shortcut and Apple Inteligence to turn a git diff into a clear git message
 3. You can use DiffSense with default settings, and it will perform similarly as github desktop AI git message works. You can also customize DiffSense so that it writes git messages in the style you or your team prefers. All git messages are editable before the commit action is called.
-
-<img width="355" alt="img" src="https://github.com/edgeleap/diffsense/blob/main/popup.gif?raw=true">
 
 ### Install
 
