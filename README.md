@@ -7,7 +7,7 @@
 ![Git 2.50.0+](https://img.shields.io/badge/git-2.50.0+-F05032?style=for-the-badge&logo=git&logoColor=white)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
-<img width="355" alt="img" src="https://github.com/edgeleap/diffsense/blob/main/demo.gif?raw=true">
+<img width="560" alt="img" src="https://github.com/edgeleap/diffsense/blob/main/demo.gif?raw=true">
 
 ### Problem
 
