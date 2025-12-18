@@ -17,7 +17,7 @@
 
 ### Solution
 
-1. DiffSense is a terminal call that creates a AI generated git message. Using the built in Apple Inteligence local LLM capability. DiffSense is OpenSource, free and has complete privacy when using the local Apple Intelligence LLM model.
+1. DiffSense is a terminal call that creates an AI generated git message. Using the built in Apple Inteligence local LLM capability. DiffSense is OpenSource, free and has complete privacy when using the local Apple Intelligence LLM model.
 2. DiffSense uses a bash command, a shortcut and Apple Inteligence to turn a git diff into a clear git message
 3. You can use DiffSense with default settings, and it will perform similarly as github desktop AI git message works. You can also customize DiffSense so that it writes git messages in the style you or your team prefers. All git messages are editable before the commit action is called.
 
