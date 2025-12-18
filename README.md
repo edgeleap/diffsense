@@ -39,7 +39,7 @@ Handle missing token case to prevent crash when API response is null.
 2. Pick the model you want to use in the shortcut. All are free to use and require no API key or subscriptions and are tied to your CPU or your macOS user account. A) Use the local LLM on your mac, B) Use Apple Intelligence private cloud AI, C) Pick ChatGPT 4o (switches to 4o mini on high usage) 
 3. Change the prompt instruction to get git messages the way you want. This is the default prompt instruction
 ```
-TextYou are given a git diff. Write a concise, human-readable git commit message that accurately describes the actual changes.
+You are given a git diff. Write a concise, human-readable git commit message that accurately describes the actual changes.
 
 Rules:
 1. Base your message strictly on what is shown in the git diff. Do not invent or guess context.
