@@ -23,7 +23,7 @@
 
 ### Install
 
-1. In terminal: `curl http://edgeleap.github.io/diffsense.sh` (installs the diffsense bash functions in an alias)
+1. In terminal: `curl https://edgeleap.github.io/diffsense.sh` (installs the diffsense bash functions in an alias)
 2. Download the [Diffsense Shortcut](https://www.icloud.com/shortcuts/6d93e2d1f09e4e8aa55b78524fb42dae) (this will install the shortcut in your shortcut app)
 3. Call `diffsense` in your terminal 👉 A shortcut window with your AI generated git msg pops up, click ok and ✅
 
