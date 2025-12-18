@@ -63,7 +63,7 @@ Handle missing token case to prevent crash when API response is null.
 - You can also use your own AI model by adding a shell script in the shortcut that calls any model OpenAI, Claude, Gemini etc. .sh script for OpenAI/Claude/Gemini: [Shell Script](https://gist.github.com/eonist/95d25034c6949c697f77628451640153)
 - For updates. call the curl in terminal again and it will download an updated version. New shortcut link will also be added to the github readme / landing page. (Updates will not be frequent, DiffSense should pretty much work as is forever, unless shortcut api's change etc, then update might be required)
 - The diffsense.sh script can be downloaded and edited if further customization is required. Just call the script in terminal to install your own diffsense flavour.
-- If you want to use DiffSense with AI agents that commits for them selfs in terminal with a flag that doesnt pop open then text input window.  via `diffsense --nopopup` That way the AI agent can do each step required right in terminal completly autonomously!
+- You can use DiffSense with AI agents that commits by them selfs in terminal by adding flag that omits popping open then text input window. `diffsense --nopopup` That way the AI agent can do each step required right in terminal completly autonomously!
 
 ### Requirments
 
