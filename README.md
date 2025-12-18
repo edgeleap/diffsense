@@ -13,7 +13,7 @@
 
 1. Github desktop AI generator button is great. But your AI quota quickly runs out on free account
 2. Writing git messages manually takes too much time, and when rushing: `"Update"`, `"New update"`, `"new new update"` 😅
-3. Using Claude Sonnet 4.5, GPT 5.2 etc to create git messages for you is expensive and cumbersom
+3. Using Claude/OpenAI/Gemini to create git messages for you is overkill when it can be done with Apple Inteligence locally on your own Apple Silicon CPU (M1-M5)
 
 ### Solution
 
