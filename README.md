@@ -1,14 +1,18 @@
-# DiffSense
-
-<img width="240" alt="img" src="github_vector_readme_logo.svg?raw=true">
-
-> AI-powered git commit messages running locally on your Mac with Apple Intelligence
-
-![macOS Tahoe 26](https://img.shields.io/badge/macOS-Tahoe%2026-000000?style=for-the-badge&logo=apple&logoColor=white)
-![Apple Silicon](https://img.shields.io/badge/Apple%20Silicon-ARM64-0071e3?style=for-the-badge&logo=apple&logoColor=white)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](https://opensource.org/licenses/MIT)
-
-DiffSense analyzes your git diffs and generates clear, context-aware commit messages using on-device AI. No API keys, no rate limits, complete privacy.
+<div align="center">
+  <img src="github_vector_readme_logo.svg?raw=true" alt="Logo" width="100" height="100">
+  <h3 align="center">DiffSense</h3>
+  <p align="center">
+    AI-powered git commit messages running locally on your Mac with Apple Intelligence.
+    <br />
+    <br />
+    <a href="" target="_blank" rel="noopener noreferrer">
+      <img src="https://img.shields.io/badge/macOS-Tahoe%2026-000000?style=for-the-badge&logo=apple&logoColor=white" alt="os" />
+    </a>
+    <a href="#" target="_blank" rel="noopener noreferrer">
+      <img alt="cpu" src="https://img.shields.io/badge/Apple%20Silicon-ARM64-0071e3?style=for-the-badge&logo=apple&logoColor=white">
+    </a>
+  </p>
+</div>
 
 ## Why DiffSense
 
