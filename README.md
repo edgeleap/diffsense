@@ -24,7 +24,7 @@ DiffSense analyzes your git diffs and generates clear, context-aware commit mess
 ### Install
 
 1. In terminal: `curl https://edgeleap.github.io/diffsense.sh`  
-2. Download the [Shortcut](https://www.icloud.com/shortcuts/6d93e2d1f09e4e8aa55b78524fb42dae) 
+2. Download the [Shortcut](https://www.icloud.com/shortcuts/eb12c7d8e47742c9b32ddc1f277fc8bc) 
 3. Stage your cahnges and call `diffsense` in your terminal
 
 **Example git commit message:**  
