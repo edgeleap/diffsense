@@ -6,16 +6,20 @@
     <br/>
     <br/>
     <span style="display:inline-block; margin-right:8px;">
-      <a href="" target="_blank" rel="noopener noreferrer"><img
-        src="https://img.shields.io/badge/macOS-Tahoe%2026-000000?style=for-the-badge&logo=apple&logoColor=white"
-        alt="os"
-      /></a>
+      <a href="https://github.com/edgeleap/diffsense/releases" target="_blank" rel="noopener noreferrer">
+        <img
+          src="https://img.shields.io/github/v/release/edgeleap/diffsense?color=FADADD0&style=for-the-badge"
+          alt="latest release"
+        />
+      </a>
     </span>
     <span style="display:inline-block;">
-      <a href="" target="_blank" rel="noopener noreferrer"><img
-        src="https://img.shields.io/badge/Apple%20Silicon-ARM64-0071e3?style=for-the-badge&logo=apple&logoColor=white"
-        alt="cpu"
-      /></a>
+      <a href="https://github.com/edgeleap/diffsense/releases" target="_blank" rel="noopener noreferrer">
+        <img
+          src="https://img.shields.io/github/downloads/edgeleap/diffsense/total?color=CDE8C4&style=for-the-badge"
+          alt="total downloads"
+        />
+      </a>
     </span>
   </p>
 </div>
