@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="github_vector_readme_logo.svg?raw=true" alt="Logo" width="100" height="100">
+  <img src="github_vector_readme_logo.svg" alt="Logo" width="100" height="100">
   <h3 align="center">DiffSense</h3>
   <p align="center">
     AI-powered git commit messages running locally on your Mac with Apple Intelligence.
