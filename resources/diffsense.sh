@@ -6,6 +6,34 @@
 
 DIFFSENSE_MAX_CHARS=1000
 
+# ---------- help ----------
+print_help() {
+  cat <<'EOF'
+Usage: diffsense [MESSAGE STYLE] [AI MODEL] [OPTIONS]
+
+STYLE:
+  default           Default style. Works when nothing is specified
+  verbose           Detailed multi-line commit message
+  minimal           Single-line, 72-char max subject
+
+MODEL:
+  afm               On-device (LOCAL) model. [DEFAULT MODEL]
+  pcc               Perplexity (PRIVATE) model
+  gpt               ChatGPT / OpenAI model
+
+OPTIONS:
+  --nopopup         Disable popup editor in the Shortcut
+  -h, --help        Show this help message and exit
+
+Examples:
+  diffsense
+  diffsense --verbose
+  diffsense --verbose --gpt
+  diffsense --nopopup
+  diffsense --minimal --nopopup
+EOF
+}
+
 # ---------- parse CLI args ----------
 parse_args() {
   local message_style="default"
@@ -181,34 +209,16 @@ diffsense() {
   local parsed ai_model message_style nopopup_suffix
   local diff header prompt payload commit_msg
 
-  # NEW: help check FIRST, before any git / platform logic
-  if [[ "${1-}" == "--help" || "${1-}" == "-h" ]]; then
-    cat <<'EOF'
-Usage: diffsense [MESSAGE STYLE] [AI MODEL] [NOPOPUP]
-
-STYLE:
-  default           Default style. Works when nothing is specified
-  verbose           Detailed multi-line commit message
-  minimal           Single-line, 72-char max subject
-
-MODEL:
-  afm               On-device (LOCAL) model. [DEFAULT MODEL]
-  pcc               Perplexity (PRIVATE) model
-  gpt               ChatGPT / OpenAI model
-
-OPTIONS:
-  --nopopup         Disable popup editor in the Shortcut
-  --help        Show this help message and exit
-
-Examples:
-  diffsense
-  diffsense --verbose
-  diffsense --verbose --gpt
-  diffsense --nopopup
-  diffsense --minimal --nopopup
-EOF
-    exit 0
+    # 0. Early help check BEFORE anything else
+  if [[ "$#" -gt 0 ]]; then
+    case "$1" in
+      -h|--help)
+        print_help
+        exit 0
+        ;;
+    esac
   fi
+
 
 
   # 1. Parse arguments (Errors print to stderr and exit)
