@@ -69,7 +69,7 @@ Handle missing token case to prevent crash when API response is null.
 - Run `git init` or navigate to a git repository
 
 **Model not responding**
-- Ensure macOS Tahoe 26 and Apple Intelligence are enabled in System Settings
+- Ensure macOS Tahoe 26 is installed and Apple Intelligence is enabled in System Settings
 
 ## License
 
