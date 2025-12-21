@@ -8,7 +8,7 @@
     <a href="" target="_blank" rel="noopener noreferrer">
       <img src="https://img.shields.io/badge/macOS-Tahoe%2026-000000?style=for-the-badge&logo=apple&logoColor=white" alt="os"/>
     </a>
-    <a href="#" target="_blank" rel="noopener noreferrer">
+    <a href="" target="_blank" rel="noopener noreferrer">
       <img src="https://img.shields.io/badge/Apple%20Silicon-ARM64-0071e3?style=for-the-badge&logo=apple&logoColor=white" alt="cpu">
     </a>
   </p>
