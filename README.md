@@ -1,5 +1,7 @@
 # DiffSense
 
+<img width="240" alt="img" src="github_vector_readme_logo.svg?raw=true">
+
 > AI-powered git commit messages running locally on your Mac with Apple Intelligence
 
 ![macOS Tahoe 26](https://img.shields.io/badge/macOS-Tahoe%2026-000000?style=for-the-badge&logo=apple&logoColor=white)
