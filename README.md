@@ -6,25 +6,34 @@
     <br/>
     <br/>
     <span style="display:inline-block; margin-right:8px;">
-      <a href="https://github.com/edgeleap/diffsense/releases" target="_blank" rel="noopener noreferrer">
+      <a
+        href="https://github.com/edgeleap/diffsense/releases"
+        target="_blank"
+        rel="noopener noreferrer"
+        style="text-decoration:none;"
+      >
         <img
           src="https://img.shields.io/github/v/release/edgeleap/diffsense?color=FADADD0&style=for-the-badge"
-          style="text-decoration:none;
           alt="latest release"
         />
       </a>
     </span>
     <span style="display:inline-block;">
-      <a href="https://github.com/edgeleap/diffsense/releases" target="_blank" rel="noopener noreferrer">
+      <a
+        href="https://github.com/edgeleap/diffsense/releases"
+        target="_blank"
+        rel="noopener noreferrer"
+        style="text-decoration:none;"
+      >
         <img
           src="https://img.shields.io/github/downloads/edgeleap/diffsense/total?color=CDE8C4&style=for-the-badge"
-          style="text-decoration:none;
           alt="total downloads"
         />
       </a>
     </span>
   </p>
 </div>
+
 
 
 ## Why DiffSense
