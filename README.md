@@ -26,6 +26,7 @@
   </p>
 </div>
 
+
 ## Why DiffSense
 
 - **Private**: Your code never leaves your machine - runs entirely on Apple Silicon
