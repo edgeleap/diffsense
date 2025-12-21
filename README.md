@@ -61,7 +61,7 @@ Handle missing token case to prevent crash when API response is null.
 - `--nopopup` - Skip edit dialog (useful for agents)
 
 **Terminal macros**
-- Add + diffsene + Push: `upload` install: `echo "alias upload='git add . && diffsense && git push'" >> ~/.zshrc`
+- Add + diffsense + Push: `upload` install: `echo "alias upload='git add . && diffsense && git push'" >> ~/.zshrc`
 - Add + diffsense: `commit` install: `echo "alias commit='git add . && diffsense'" >> ~/.zshrc`
 
 ## Troubleshooting
