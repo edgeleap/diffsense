@@ -75,6 +75,11 @@ Handle missing token case to prevent crash when API response is null.
 **Model not responding**
 - Ensure macOS Tahoe 26 is installed and Apple Intelligence is enabled in System Settings
 
+## Roadmap
+- Improve diff algo, chunking etc (V1)
+- BYO prompt instruction via flag + macro for easy access (V1)
+- Add support for BYO API keys for Anthropic, Gemini, OpenAI etc (V2)
+
 ## License
 
 MIT © EdgeLeap
