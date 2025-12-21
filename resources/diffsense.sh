@@ -136,15 +136,25 @@ check_git_state() {
 build_prompt() {
   case "$1" in
     verbose)
-      echo "Write a detailed git commit message. Start with a short subject line, followed by a blank line, and then a comprehensive explanation of the changes. Explain the reasoning behind the code updates. Do not use labels like 'Subject:' or 'Body:'."
+      echo "You are a senior developer. Write a standard git commit message.
+1. First line: A short, imperative summary (max 50 chars).
+2. Second line: Blank.
+3. Body: Bullet points ('- ') explaining specific changes.
+Constraint: Focus on the 'WHY'. Wrap lines at 72 chars. No generic intros like 'This commit...'. 
+Output strictly in plain text (NO Markdown, no **bold**, no `code` ticks)."
       ;;
     
     minimal)
-      echo "Write a strictly single-line git commit message (max 72 chars). Describe the primary change concisely in imperative mood (e.g., 'Add feature' not 'Added feature'). Do not add any description or body."
+      echo "Write a concise, high-level git commit subject (max 50 chars).
+Constraint: Use imperative mood. summarize the INTENT, not every file change.
+Example: 'Refactor UI styles' is better than 'Update App.css and App.tsx'.
+Do not end with a period."
       ;;
     
     default)
-      echo "Write a concise git commit message. Use a single imperative subject line (e.g., 'Fix typo in header') that summarizes the change. If necessary, add one short sentence of context after a blank line. Do not use labels like 'Subject:' or 'Summary:'."
+      echo "Write a single-line git commit message (max 72 chars).
+Constraint: Use imperative mood. Summarize exactly WHAT changed (e.g., 'Add hover effects and remove unused code').
+Do not mention filenames unless necessary. Do not end with a period."
       ;;
   esac
 }
