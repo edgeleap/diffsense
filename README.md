@@ -1,9 +1,4 @@
 <div align="center">
-  <style>
-    .badge-link {
-      text-decoration: none;
-    }
-  </style>
   <img src="github_vector_readme_logo.svg" alt="Logo" width="100" height="100">
   <h3 align="center">DiffSense</h3>
   <p align="center">
@@ -11,28 +6,25 @@
     <br/>
     <br/>
     <span style="display:inline-block; margin-right:8px;">
-      <a class="badge-link"
-         href="https://github.com/edgeleap/diffsense/releases"
-         target="_blank" rel="noopener noreferrer">
+      <a href="https://github.com/edgeleap/diffsense/releases" target="_blank" rel="noopener noreferrer">
         <img
           src="https://img.shields.io/github/v/release/edgeleap/diffsense?color=FADADD0&style=for-the-badge"
+          style="text-decoration:none;
           alt="latest release"
         />
       </a>
     </span>
     <span style="display:inline-block;">
-      <a class="badge-link"
-         href="https://github.com/edgeleap/diffsense/releases"
-         target="_blank" rel="noopener noreferrer">
+      <a href="https://github.com/edgeleap/diffsense/releases" target="_blank" rel="noopener noreferrer">
         <img
           src="https://img.shields.io/github/downloads/edgeleap/diffsense/total?color=CDE8C4&style=for-the-badge"
+          style="text-decoration:none;
           alt="total downloads"
         />
       </a>
     </span>
   </p>
 </div>
-
 
 ## Why DiffSense
 
