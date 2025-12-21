@@ -4,32 +4,67 @@
 # diffsense — AI-powered git commit generator
 # =========================================
 
-# ---------- configuration ----------
-DIFFSENSE_MAX_CHARS=800
+DIFFSENSE_MAX_CHARS=1000
 
-# ---------- parse CLI flags ----------
+# ---------- parse CLI args ----------
 parse_args() {
-  local mode_arg="$1"
-  local mode="LOCAL"
+  local message_style="default"
+  local ai_model="afm"
+  local nopopup_suffix=""
+  
+  # Iterate over all provided arguments
+  for raw_arg in "$@"; do
+    # Remove leading dashes (e.g., --verbose -> verbose) to support both formats
+    local arg="${raw_arg#--}"
 
-  case "$mode_arg" in
-    --verbose) mode="PRIVATE" ;;
-    --minimal) mode="CHATGPT" ;;
+    case "$arg" in
+
+      # Message Styles
+      default|verbose|minimal)
+        message_style="$arg"
+        ;;
+      
+      # AI Models
+      afm|pcc|gpt)
+        ai_model="$arg"
+        ;;
+      
+      # Special Flag (nopopup is the only one we keep the dash check for strictness if needed, 
+      # but sticking to your logic, checking 'nopopup' after stripping works too)
+      nopopup)
+        nopopup_suffix="_NOPOPUP"
+        ;;
+      
+      *)
+        echo "❌ Error: Command '$raw_arg' does not exist." >&2
+        return 1
+        ;;
+    esac
+  done
+
+  # Internal Mapping
+  local ai_model_internal
+  case "$ai_model" in
+    afm) ai_model_internal="LOCAL" ;;
+    pcc) ai_model_internal="PRIVATE" ;;
+    gpt) ai_model_internal="CHATGPT" ;;
   esac
 
-  echo "$mode"
+  echo "$ai_model_internal $message_style $nopopup_suffix"
 }
 
-# ---------- platform checks ----------
-check_platform() {
+# ---------- platform ----------
+check_platform_and_arch() {
   local arch os_major
   arch=$(uname -m)
+
   if [[ "$arch" != "arm64" ]]; then
     echo "❌ diffsense requires Apple Silicon (M-series Macs)."
     return 1
   fi
 
   os_major=$(sw_vers -productVersion | cut -d. -f1)
+  # STRICT REQUIREMENT: Only work on macOS 26+
   if (( os_major < 26 )); then
     echo "❌ diffsense requires macOS 26 or newer."
     echo "   Current version: $(sw_vers -productVersion)"
@@ -37,25 +72,60 @@ check_platform() {
   fi
 }
 
-# ---------- git checks ----------
-check_git_repo() {
+# ---------- git validation ----------
+check_is_git_repo() {
   if ! git rev-parse --git-dir >/dev/null 2>&1; then
     echo "❌ Not inside a git repository."
-    return 1
+    exit 1
   fi
 }
 
-check_staged_changes() {
-  if git diff --cached --quiet; then
-    echo "ℹ️ No staged changes to commit."
-    return 1
+# ---------- git state ----------
+check_git_state() {
+  local staged unstaged
+  staged=$(git diff --cached --name-only)
+  unstaged=$(git diff --name-only)
+
+  if [[ -z "$staged" && -z "$unstaged" ]]; then
+    echo "ℹ️ No changes to commit."
+    exit 0
+  fi
+
+  if [[ -z "$staged" && -n "$unstaged" ]]; then
+    echo "ℹ️ No staged changes."
+    echo "   Stage your changes using: git add ."
+    exit 0
+  fi
+
+  if [[ -n "$staged" && -n "$unstaged" ]]; then
+    echo -n "⚠️ There are unstaged changes. Commit only staged changes? [y/N] "
+    read -r ans
+    [[ "$ans" =~ ^[Yy]$ ]] || exit 0
   fi
 }
 
-# ---------- diff preparation ----------
+# ---------- prompt ----------
+build_prompt() {
+  case "$1" in
+    verbose)
+      echo "Write a detailed git commit message. Start with a short subject line, followed by a blank line, and then a comprehensive explanation of the changes. Explain the reasoning behind the code updates. Do not use labels like 'Subject:' or 'Body:'."
+      ;;
+    
+    minimal)
+      echo "Write a strictly single-line git commit message (max 72 chars). Describe the primary change concisely in imperative mood (e.g., 'Add feature' not 'Added feature'). Do not add any description or body."
+      ;;
+    
+    default)
+      echo "Write a concise git commit message. Use a single imperative subject line (e.g., 'Fix typo in header') that summarizes the change. If necessary, add one short sentence of context after a blank line. Do not use labels like 'Subject:' or 'Summary:'."
+      ;;
+  esac
+}
+
+
+
+# ---------- diff ----------
 prepare_diff() {
-  local diff_body
-  diff_body=$(git --no-pager diff --cached --no-color \
+  git --no-pager diff --cached --no-color \
     | sed -E '
       /^diff --git/d
       /^index /d
@@ -64,92 +134,113 @@ prepare_diff() {
       s/^\+\+\+ b\//FILE: /
     ' \
     | sed '1i\
-You are given a git diff. Write a concise, human-readable git commit message that accurately describes the actual changes. Summarize it
-    ')
-  echo "$diff_body"
+NEVER RETURN THE RESPONSE IN RICHTEXT, RETURN SIMPLE TEXTS
+'
 }
 
-# ---------- enforce size limits ----------
-truncate_diff_if_needed() {
-  local diff_body="$1"
-  local mode="$2"
-  local header_len body_limit header
+# ---------- truncate ----------
+truncate_diff() {
+  local diff="$1"
+  local header="$2"
+  local prompt="$3"
 
-  header="@@DIFFSENSE_MODE=${mode}\n"
-  header_len=${#header}
-  body_limit=$((DIFFSENSE_MAX_CHARS - header_len))
+  local body_limit=$((DIFFSENSE_MAX_CHARS - ${#header} - ${#prompt} - 5))
 
   if (( body_limit <= 0 )); then
     echo "❌ Internal error: header exceeds character budget."
     return 1
   fi
 
-  if (( ${#diff_body} > body_limit )); then
-    diff_body=$(echo "$diff_body" | head -c "$body_limit")
-
-    if [[ "$mode" == "LOCAL" ]]; then
-      # TODO: Implement on-device pre-summarization for very long diffs
-      :
-    fi
-  fi
-
-  echo "$diff_body"
+  echo "$diff" | head -c "$body_limit"
 }
 
-# ---------- build payload ----------
-build_payload() {
-  local diff_body="$1"
-  local mode="$2"
-
-  local payload="@@DIFFSENSE_MODE=${mode}\n${diff_body}"
-  echo "$payload"
-}
-
-# ---------- invoke shortcut ----------
+# ---------- shortcut ----------
 invoke_shortcut() {
-  local payload="$1"
-  local commit_msg
-
-  commit_msg=$(shortcuts run "SummarizeCommit" <<< "$payload")
-
-  if [[ -z "$commit_msg" ]]; then
-    echo "❌ Commit message generation failed."
-    echo "   • Ensure Apple Intelligence is enabled"
-    echo "   • Ensure Shortcut input type = Text"
-    echo "   • Ensure Automation permission is granted"
-    return 1
-  fi
-
-  echo "$commit_msg"
+  shortcuts run "SummarizeCommit" <<< "$1"
 }
 
 # ---------- commit changes ----------
 commit_changes() {
   local commit_msg="$1"
 
+  if [[ -z "$commit_msg" ]]; then
+    echo "❌ Error: Received empty commit message."
+    return 1
+  fi
+
   if git commit -m "$commit_msg"; then
-    echo "✅ Commit created successfully:"
-    echo "   \"$commit_msg\""
+    echo "✅ Commit created successfully."
   else
     echo "❌ Git commit failed."
     return 1
   fi
 }
 
-# ---------- main entry ----------
+# ---------- main ----------
 diffsense() {
-  local mode diff_body truncated_diff payload commit_msg
+  local parsed ai_model message_style nopopup_suffix
+  local diff header prompt payload commit_msg
 
-  mode=$(parse_args "$1") || return 1
-  check_platform           || return 1
-  check_git_repo           || return 1
-  check_staged_changes     || return 1
+  # NEW: help check FIRST, before any git / platform logic
+  if [[ "${1-}" == "--help" || "${1-}" == "-h" ]]; then
+    cat <<'EOF'
+Usage: diffsense [MESSAGE STYLE] [AI MODEL] [NOPOPUP]
 
-  diff_body=$(prepare_diff) || return 1
-  truncated_diff=$(truncate_diff_if_needed "$diff_body" "$mode") || return 1
-  payload=$(build_payload "$truncated_diff" "$mode") || return 1
-  commit_msg=$(invoke_shortcut "$payload") || return 1
-  commit_changes "$commit_msg" || return 1
+STYLE:
+  default           Default style. Works when nothing is specified
+  verbose           Detailed multi-line commit message
+  minimal           Single-line, 72-char max subject
+
+MODEL:
+  afm               On-device (LOCAL) model. [DEFAULT MODEL]
+  pcc               Perplexity (PRIVATE) model
+  gpt               ChatGPT / OpenAI model
+
+OPTIONS:
+  --nopopup         Disable popup editor in the Shortcut
+  --help        Show this help message and exit
+
+Examples:
+  diffsense
+  diffsense --verbose
+  diffsense --verbose --gpt
+  diffsense --nopopup
+  diffsense --minimal --nopopup
+EOF
+    exit 0
+  fi
+
+
+  # 1. Parse arguments (Errors print to stderr and exit)
+  if ! parsed=$(parse_args "$@"); then
+    exit 1
+  fi
+
+  ai_model=$(awk '{print $1}' <<< "$parsed")
+  message_style=$(awk '{print $2}' <<< "$parsed")
+  nopopup_suffix=$(awk '{print $3}' <<< "$parsed")
+
+  # 2. Checks
+  check_platform_and_arch || exit 1
+  check_is_git_repo
+  check_git_state
+
+  # 3. Build Components
+  prompt=$(build_prompt "$message_style")
+  diff=$(prepare_diff)
+
+  # 4. Build Header
+  header="@@DIFFSENSE_META=${ai_model}${nopopup_suffix}"
+
+  # 5. Truncate
+  diff=$(truncate_diff "$diff" "$header" "$prompt") || exit 1
+
+  # 6. Build Payload
+  payload="${header}"$'\n'"${prompt}"$'\n\n'"${diff}"
+  
+  # 7. Execute
+  commit_msg=$(invoke_shortcut "$payload") || exit 1
+  commit_changes "$commit_msg"
 }
 
 diffsense "$@"
