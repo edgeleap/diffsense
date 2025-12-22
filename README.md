@@ -5,11 +5,10 @@
     AI-powered git commit messages running locally on your Mac with Apple Intelligence.
     <br/>
     <br/>
-    <a href="https://github.com/edgeleap/diffsense/releases" target="_blank" rel="noopener noreferrer"><img src="https://img.shields.io/github/v/release/edgeleap/diffsense?color=FADADD0&style=for-the-badge" alt="latest release" /></a>
+    <a href="https://github.com/edgeleap/diffsense/releases" target="_blank" rel="noopener noreferrer"><img src="https://img.shields.io/github/v/release/edgeleap/diffsense?color=FADADD&style=for-the-badge" alt="latest release" /></a>
     <a href="https://github.com/edgeleap/diffsense/releases" target="_blank" rel="noopener noreferrer"><img src="https://img.shields.io/github/downloads/edgeleap/diffsense/total?color=CDE8C4&style=for-the-badge" alt="total downloads" /></a>
   </p>
 </div>
-
 
 ## Why DiffSense
 
