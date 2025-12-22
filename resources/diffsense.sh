@@ -194,7 +194,20 @@ truncate_diff() {
 
 # ---------- shortcut ----------
 invoke_shortcut() {
-  shortcuts run "Diffsense" <<< "$1"
+  local output
+
+  if ! output=$(shortcuts run "Diffsense" 2>&1 <<< "$1"); then
+    if grep -qiE "couldn.?t find shortcut" <<< "$output"; then
+      echo "❌ Couldn't find the 'Diffsensee' shortcut. Please install it from https://edgeleap.github.io/ 🚀" >&2
+      return 1
+    fi
+
+    # Any other error: show original message
+    echo "$output" >&2
+    return 1
+  fi
+
+  printf '%s\n' "$output"
 }
 
 # ---------- commit changes ----------
