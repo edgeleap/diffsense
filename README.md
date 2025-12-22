@@ -26,7 +26,7 @@
 ### Install
 
 1. In terminal: `curl https://edgeleap.github.io/diffsense.sh`  
-2. Download the [Shortcut](https://www.icloud.com/shortcuts/eb12c7d8e47742c9b32ddc1f277fc8bc) 
+2. Download the [Diffsense.shortcut](https://github.com/edgeleap/diffsense/releases/latest/download/DiffSense.sh)
 3. Stage your cahnges and call `diffsense` in your terminal
 
 **Example git commit message:**  
@@ -73,4 +73,3 @@ Handle missing token case to prevent crash when API response is null.
 ## License
 
 MIT © EdgeLeap
- 
