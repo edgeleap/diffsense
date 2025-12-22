@@ -194,7 +194,7 @@ truncate_diff() {
 
 # ---------- shortcut ----------
 invoke_shortcut() {
-  shortcuts run "SummarizeCommit" <<< "$1"
+  shortcuts run "Diffsense" <<< "$1"
 }
 
 # ---------- commit changes ----------
