@@ -26,7 +26,7 @@
 ### Install
 
 1. In terminal: `curl https://edgeleap.github.io/diffsense.sh`  
-2. Download the [Shortcut](https://www.icloud.com/shortcuts/abfd80399d14456f8b8b2b1d6f7c37d6) 
+2. Download the [Shortcut](https://www.icloud.com/shortcuts/828188e2f8c345a1b950900a49ae8c77) 
 3. Stage your cahnges and call `diffsense` in your terminal
 
 **Example git commit message:**  
