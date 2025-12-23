@@ -4,9 +4,135 @@
 # diffsense — AI-powered git commit generator
 # =========================================
 
-# DIFFSENSE_MAX_CHARS=1000
+# ---------- noise patterns for diff filtering ----------
+NOISE_PATTERNS=(
+  # Package / lock files
+  "yarn.lock"
+  "package-lock.json"
+  "pnpm-lock.yaml"
+  "npm-shrinkwrap.json"
+  "Cargo.lock"
+  "Pipfile.lock"
+  "poetry.lock"
+  "composer.lock"
+  "Gemfile.lock"
+  "go.sum"
+  "mix.lock"
+  "Podfile.lock"
+  "packages.lock.json"
 
+  # Dependency / vendor directories
+  "node_modules/"
+  "vendor/"
+  "Pods/"
+  ".venv/"
+  "venv/"
+  ".pipenv/"
+  ".m2/"
+  "target/"
+  "packages/"
+  "deps/"
 
+  # Build / dist / cache dirs
+  "dist/"
+  "build/"
+  "out/"
+  "bin/"
+  "obj/"
+  ".next/"
+  ".nuxt/"
+  ".angular/"
+  ".svelte-kit/"
+  ".cache/"
+  ".turbo/"
+  ".parcel-cache/"
+  ".rollup-cache/"
+  ".vite/"
+  ".gradle/"
+  "DerivedData/"
+
+  # Coverage / reports
+  "coverage/"
+  "htmlcov/"
+  "lcov-report/"
+  "coverage-final.json"
+  "jacoco.exec"
+
+  # Logs / temp / misc
+  "logs/"
+  "log/"
+  "*.log"
+  "*.tmp"
+  "*.temp"
+
+  # Binary / media assets
+  "*.png"
+  "*.jpg"
+  "*.jpeg"
+  "*.gif"
+  "*.svg"
+  "*.ico"
+  "*.webp"
+  "*.bmp"
+  "*.tiff"
+  "*.psd"
+  "*.ai"
+  "*.sketch"
+  "*.fig"
+  "*.pdf"
+  "*.mp3"
+  "*.wav"
+  "*.ogg"
+  "*.flac"
+  "*.mp4"
+  "*.mov"
+  "*.avi"
+  "*.mkv"
+
+  # Fonts
+  "*.ttf"
+  "*.otf"
+  "*.woff"
+  "*.woff2"
+
+  # Archives / bundles
+  "*.zip"
+  "*.tar"
+  "*.tar.gz"
+  "*.tgz"
+  "*.rar"
+  "*.7z"
+
+  # IDE / editor / tooling artifacts
+  ".idea/"
+  ".vscode/"
+  ".vs/"
+  ".DS_Store"
+  "*.iml"
+
+  # Data dumps / DBs
+  "*.csv"
+  "*.tsv"
+  "*.sqlite"
+  "*.db"
+  "*.mdb"
+  "*.bak"
+  "*.bak.*"
+
+  # Compiled artifacts
+  "*.class"
+  "*.jar"
+  "*.war"
+  "*.ear"
+  "*.dll"
+  "*.exe"
+  "*.so"
+  "*.dylib"
+  "*.o"
+  "*.obj"
+  "*.a"
+  "*.lib"
+)
 set_max_chars_for_model() {
   local model="$1"
 
@@ -25,6 +151,7 @@ set_max_chars_for_model() {
       DIFFSENSE_MAX_CHARS=10000
       ;;
   esac
+
 }
 
 # ---------- help ----------
@@ -179,17 +306,34 @@ Do not mention filenames unless necessary. Do not end with a period."
   esac
 }
 
+# noise patterns array here...
+
+build_diff_excludes() {
+  local args=()
+  for p in "${NOISE_PATTERNS[@]}"; do
+    args+=( ":(exclude)$p" )
+  done
+  printf '%s\n' "${args[@]}"
+}
+
 # ---------- diff ----------
 prepare_diff() {
-  git --no-pager diff --cached --no-color \
-    | sed -E '
+  local exclude_args=()
+  while IFS= read -r line; do
+    exclude_args+=( "$line" )
+  done < <(build_diff_excludes)
+
+  git --no-pager diff --cached --no-color -- \
+    . \
+    "${exclude_args[@]}" \
+  | sed -E '
       /^diff --git/d
       /^index /d
       /^@@ /d
       /^--- /d
       s/^\+\+\+ b\//FILE: /
     ' \
-    | sed '1i\
+  | sed '1i\
 NEVER RETURN THE RESPONSE IN RICHTEXT, RETURN SIMPLE TEXTS
 '
 }
