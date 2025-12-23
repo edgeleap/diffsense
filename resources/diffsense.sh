@@ -135,7 +135,7 @@ NOISE_PATTERNS=(
 )
 set_max_chars_for_model() {
   local model="$1"
-
+  #Calculation based on: https://github.com/edgeleap/diffsense/issues/34
   case "$model" in
     LOCAL)
       DIFFSENSE_MAX_CHARS=13144
@@ -188,7 +188,6 @@ parse_args() {
   local ai_model="afm"
   local nopopup_suffix=""
   
-  # Iterate over all provided arguments
   for raw_arg in "$@"; do
     # Remove leading dashes (e.g., --verbose -> verbose) to support both formats
     local arg="${raw_arg#--}"
@@ -217,7 +216,7 @@ parse_args() {
     esac
   done
 
-  # Internal Mapping
+  # Mapping
   local ai_model_internal
   case "$ai_model" in
     afm) ai_model_internal="LOCAL" ;;
@@ -320,18 +319,13 @@ build_diff_excludes() {
 build_file_summary() {
   local exclude_args=()
 
-  # Reuse the same excludes for stats so we don't summarize skipped files
   while IFS= read -r line; do
     exclude_args+=( "$line" )
   done < <(build_diff_excludes)
 
-  # Get name + status (A/M/D/R...) for staged changes
-  # Format: "M<TAB>path/to/file"
   local name_status
   name_status=$(git diff --cached --name-status -- "${exclude_args[@]}" || true)
 
-  # Get added/removed line counts per file
-  # Format: "35<TAB>10<TAB>path/to/file"
   local numstat
   numstat=$(git diff --cached --numstat -- "${exclude_args[@]}" || true)
 
