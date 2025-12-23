@@ -135,7 +135,7 @@ NOISE_PATTERNS=(
 )
 set_max_chars_for_model() {
   local model="$1"
-  #Calculation based on: https://github.com/edgeleap/diffsense/issues/34
+
   case "$model" in
     LOCAL)
       DIFFSENSE_MAX_CHARS=13144
@@ -299,8 +299,8 @@ Constraint: Use imperative mood. summarize the INTENT, not every file change. Gi
 
     default)
       echo "Write a single-line git commit message (max 72 chars).
-Constraint: Use imperative mood. Summarize exactly WHAT changed (e.g., 'Add hover effects and remove unused code').
-Do not mention filenames unless necessary. Do not end with a period."
+Constraint: Use imperative mood. Summarize exactly WHAT changed.
+Do not mention filenames unless necessary."
       ;;
   esac
 }
