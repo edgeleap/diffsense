@@ -50,6 +50,9 @@ Handle missing token case to prevent crash when API response is null.
 **Workflow:**
 - `--nopopup` - Skip edit dialog (useful for agents)
 
+**Getting help:**
+- `diffsense --help` - Show all available options and usage information
+
 **Terminal macros**
 - Add + diffsense + Push: `upload` install: `echo "alias upload='git add . && diffsense && git push'" >> ~/.zshrc`
 - Add + diffsense: `commit` install: `echo "alias commit='git add . && diffsense'" >> ~/.zshrc`
