@@ -170,6 +170,9 @@ MODEL:
   gpt               ChatGPT / OpenAI model
 
 OPTIONS:
+  --byo <file>      Append extra prompt instructions from file
+                    e.g. diffsense --byo "~/cstm_cmt_msg_rules.md"
+                    Note: Large prompts reduce available space for diff
   --nopopup         Disable popup editor in the Shortcut
   -h, --help        Show this help message and exit
 
@@ -177,9 +180,30 @@ Examples:
   diffsense
   diffsense --verbose
   diffsense --verbose --gpt
+  diffsense --byo "~/cstm_cmt_msg_rules.md"
+  diffsense --byo "~/rules.md" --gpt --nopopup
   diffsense --nopopup
   diffsense --minimal --nopopup
 EOF
+}
+
+# ---------- load BYO prompt ----------
+load_byo_prompt() {
+  local path="$1"
+
+  if [[ -z "$path" ]]; then
+    return 0
+  fi
+
+  # Expand ~ to home directory
+  eval "local expanded_path=\"$path\""
+
+  if [[ ! -f "$expanded_path" ]]; then
+    echo "❌ BYO prompt file not found: $expanded_path" >&2
+    return 1
+  fi
+
+  cat "$expanded_path"
 }
 
 # ---------- parse CLI args ----------
@@ -187,33 +211,41 @@ parse_args() {
   local message_style="default"
   local ai_model="afm"
   local nopopup_suffix=""
-  
-  for raw_arg in "$@"; do
-    # Remove leading dashes (e.g., --verbose -> verbose) to support both formats
-    local arg="${raw_arg#--}"
+  local byo_prompt_file=""
 
-    case "$arg" in
-
-      # Message Styles
-      default|verbose|minimal)
-        message_style="$arg"
+  while [[ $# -gt 0 ]]; do
+    raw_arg="$1"
+    case "$raw_arg" in
+      --byo)
+        shift
+        if [[ -z "$1" ]]; then
+          echo "❌ Error: --byo requires a file path." >&2
+          return 1
+        fi
+        byo_prompt_file="$1"
         ;;
-      
-      # AI Models
-      afm|pcc|gpt)
-        ai_model="$arg"
+      --byo=*)
+        byo_prompt_file="${raw_arg#*=}"
         ;;
-      
-      # Special Flag
-      nopopup)
+      --default|--verbose|--minimal|default|verbose|minimal)
+        message_style="${raw_arg#--}"
+        ;;
+      --afm|afm|--pcc|pcc|--gpt|gpt)
+        ai_model="${raw_arg#--}"
+        ;;
+      --nopopup)
         nopopup_suffix="_NOPOPUP"
         ;;
-      
+      -h|--help)
+        print_help
+        exit 0
+        ;;
       *)
         echo "❌ Error: Command '$raw_arg' does not exist." >&2
         return 1
         ;;
     esac
+    shift
   done
 
   # Mapping
@@ -224,7 +256,7 @@ parse_args() {
     gpt) ai_model_internal="CHATGPT" ;;
   esac
 
-  echo "$ai_model_internal $message_style $nopopup_suffix"
+  echo "$ai_model_internal $message_style $nopopup_suffix $byo_prompt_file"
 }
 
 # ---------- platform ----------
@@ -451,8 +483,8 @@ commit_changes() {
 
 # ---------- main ----------
 diffsense() {
-  local parsed ai_model message_style nopopup_suffix
-  local diff header prompt payload commit_msg
+  local parsed ai_model message_style nopopup_suffix byo_prompt_file
+  local diff header prompt base_prompt byo_prompt payload commit_msg
 
   # 0. Early help check BEFORE anything else
   if [[ "$#" -gt 0 ]]; then
@@ -472,6 +504,7 @@ diffsense() {
   ai_model=$(awk '{print $1}' <<< "$parsed")
   message_style=$(awk '{print $2}' <<< "$parsed")
   nopopup_suffix=$(awk '{print $3}' <<< "$parsed")
+  byo_prompt_file=$(awk '{print $4}' <<< "$parsed")
 
   set_max_chars_for_model "$ai_model"
 
@@ -481,13 +514,32 @@ diffsense() {
   check_git_state
 
   # 3. Build Components
-  prompt=$(build_prompt "$message_style")
-  diff=$(prepare_diff)
+  base_prompt=$(build_prompt "$message_style")
+  if ! byo_prompt=$(load_byo_prompt "$byo_prompt_file"); then
+    exit 1
+  fi
 
-  # 4. Build Header
+  if [[ -n "$byo_prompt" ]]; then
+    prompt="$base_prompt"$'\n\n'"Additional instructions:"$'\n'"$byo_prompt"
+  else
+    prompt="$base_prompt"
+  fi
+
+  # 4. Validate prompt size before proceeding
   header="@@DIFFSENSE_META=${ai_model}${nopopup_suffix}"
+  local prompt_overhead=$((${#header} + ${#prompt} + 5))
+  local remaining=$((DIFFSENSE_MAX_CHARS - prompt_overhead))
+  
+  if (( remaining < 500 )); then
+    echo "❌ Error: BYO prompt instructions are too large." >&2
+    echo "   Available space: ${remaining} chars (need at least 500 for diff)" >&2
+    echo "   Model limit: ${DIFFSENSE_MAX_CHARS} chars" >&2
+    echo "   Prompt size: $((${#prompt} + ${#header})) chars" >&2
+    exit 1
+  fi
 
-  # 5. Truncate
+  # 5. Prepare and truncate diff
+  diff=$(prepare_diff)
   diff=$(truncate_diff "$diff" "$header" "$prompt") || exit 1
 
   # 6. Build Payload
