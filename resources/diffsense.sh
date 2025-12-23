@@ -279,25 +279,25 @@ check_git_state() {
   fi
 }
 
-# ---------- prompt ----------
 build_prompt() {
   case "$1" in
     verbose)
       echo "You are a senior developer. Write a standard git commit message.
-1. First line: A short, imperative summary (max 50 chars).
-2. Second line: Blank.
-3. Body: Bullet points ('- ') explaining specific changes.
-Constraint: Focus on the 'WHY'. Wrap lines at 72 chars. No generic intros like 'This commit...'. 
+- '-' lines were removed, '+' lines were added.
+- Other lines are unchanged context.
+Follow the rules given below:
+1) First line: short imperative summary (<=50 chars).
+2) Blank line.
+3) Bullet list ('- ') explaining main changes and reasons.
+Focus on what changed in '+' and '-' lines, not only on unchanged context. No generic intros like 'This commit...'.
 Output strictly in plain text (NO Markdown, no **bold**, no \`code\` ticks)."
       ;;
-    
+
     minimal)
       echo "Write a concise, high-level git commit subject (max 50 chars).
-Constraint: Use imperative mood. summarize the INTENT, not every file change.
-Example: 'Refactor UI styles' is better than 'Update App.css and App.tsx'.
-Do not end with a period."
+Constraint: Use imperative mood. summarize the INTENT, not every file change. Give the best concise message."
       ;;
-    
+
     default)
       echo "Write a single-line git commit message (max 72 chars).
 Constraint: Use imperative mood. Summarize exactly WHAT changed (e.g., 'Add hover effects and remove unused code').
@@ -316,25 +316,91 @@ build_diff_excludes() {
   printf '%s\n' "${args[@]}"
 }
 
+# ---------- per-file summary (name, status, stats) ----------
+build_file_summary() {
+  local exclude_args=()
+
+  # Reuse the same excludes for stats so we don't summarize skipped files
+  while IFS= read -r line; do
+    exclude_args+=( "$line" )
+  done < <(build_diff_excludes)
+
+  # Get name + status (A/M/D/R...) for staged changes
+  # Format: "M<TAB>path/to/file"
+  local name_status
+  name_status=$(git diff --cached --name-status -- "${exclude_args[@]}" || true)
+
+  # Get added/removed line counts per file
+  # Format: "35<TAB>10<TAB>path/to/file"
+  local numstat
+  numstat=$(git diff --cached --numstat -- "${exclude_args[@]}" || true)
+
+  # For each status line, find matching stats line by path
+  local status path rest
+  while IFS=$'\t' read -r status path rest; do
+    [[ -z "$path" ]] && continue
+
+    # Map one-letter status to words
+    local action
+    case "$status" in
+      A) action="Added" ;;
+      M) action="Modified" ;;
+      D) action="Deleted" ;;
+      R*) action="Renamed" ;; # R100, R090 etc.
+      *) action="Changed" ;;
+    esac
+
+    # Default stats in case we don't find a match (e.g. binary)
+    local add="-"
+    local remove="-"
+
+    # Search numstat lines for this path
+    local ns_line
+    while IFS= read -r ns_line; do
+      # numstat line format: "<add>\t<remove>\t<path>"
+      # Use pattern match to check if it ends with TAB + path
+      case "$ns_line" in
+        *$'\t'"$path")
+          add=${ns_line%%$'\t'*}                # text before first TAB
+          local rest_stats=${ns_line#*$'\t'}    # after first TAB
+          remove=${rest_stats%%$'\t'*}          # text before second TAB
+          break
+          ;;
+      esac
+    done <<< "$numstat"
+
+    echo "$action $path (+${add} -${remove})"
+  done <<< "$name_status"
+}
+
 # ---------- diff ----------
 prepare_diff() {
+  # Build exclude arguments from patterns
   local exclude_args=()
   while IFS= read -r line; do
     exclude_args+=( "$line" )
   done < <(build_diff_excludes)
 
+ {
+  # Per-file summary
+  echo "Files changed (staged):"
+  build_file_summary
+  echo
+  echo "Diff (filtered):"
+
+  # Actual filtered diff
   git --no-pager diff --cached --no-color -- \
     . \
     "${exclude_args[@]}" \
   | sed -E '
       /^diff --git/d
       /^index /d
-      /^@@ /d
       /^--- /d
       s/^\+\+\+ b\//FILE: /
-    ' \
-  | sed '1i\
-NEVER RETURN THE RESPONSE IN RICHTEXT, RETURN SIMPLE TEXTS
+    '
+} | sed '1i\
+NEVER RETURN THE RESPONSE IN RICHTEXT, RETURN SIMPLE TEXTS\
+\
 '
 }
 
