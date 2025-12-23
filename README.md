@@ -50,6 +50,13 @@ Handle missing token case to prevent crash when API response is null.
 - `--pcc` - Private Cloud Compute (more capable)
 - `--gpt` - ChatGPT 4o (best quality, quota limits)
 
+**Custom prompt instructions:**
+- `--byo <file>` - Use custom commit message rules from a file
+  - Example: `diffsense --byo "~/cstm_cmt_msg_rules.md"`
+  - Supports tilde expansion (`~`) for home directory
+  - Combine with any style or model: `diffsense --byo "~/rules.md" --gpt --verbose`
+  - See [cstm_cmt_msg_rules.md](cstm_cmt_msg_rules.md) for an example template
+
 **Workflow:**
 - `--nopopup` - Skip edit dialog (useful for agents)
 
@@ -70,7 +77,7 @@ Handle missing token case to prevent crash when API response is null.
 
 ## Roadmap
 
-- BYO prompt instruction via flag + macro for easy access (V1)
+- ~~BYO prompt instruction via flag + macro for easy access (V1)~~ ✅ Completed
 - Improve diff algo with chunking (V2)
 - Add support for BYO API keys for Anthropic, Gemini, OpenAI etc (V2)
 
