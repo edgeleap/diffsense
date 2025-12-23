@@ -4,7 +4,28 @@
 # diffsense — AI-powered git commit generator
 # =========================================
 
-DIFFSENSE_MAX_CHARS=1000
+# DIFFSENSE_MAX_CHARS=1000
+
+
+set_max_chars_for_model() {
+  local model="$1"
+
+  case "$model" in
+    LOCAL)
+      DIFFSENSE_MAX_CHARS=13144
+      ;;
+    PRIVATE)
+      DIFFSENSE_MAX_CHARS=256000
+      ;;
+    CHATGPT)
+      DIFFSENSE_MAX_CHARS=1194000
+      ;;
+    *)
+      # Fallback (should not happen): keep a safe small default
+      DIFFSENSE_MAX_CHARS=10000
+      ;;
+  esac
+}
 
 # ---------- help ----------
 print_help() {
@@ -57,8 +78,7 @@ parse_args() {
         ai_model="$arg"
         ;;
       
-      # Special Flag (nopopup is the only one we keep the dash check for strictness if needed, 
-      # but sticking to your logic, checking 'nopopup' after stripping works too)
+      # Special Flag
       nopopup)
         nopopup_suffix="_NOPOPUP"
         ;;
@@ -141,7 +161,7 @@ build_prompt() {
 2. Second line: Blank.
 3. Body: Bullet points ('- ') explaining specific changes.
 Constraint: Focus on the 'WHY'. Wrap lines at 72 chars. No generic intros like 'This commit...'. 
-Output strictly in plain text (NO Markdown, no **bold**, no `code` ticks)."
+Output strictly in plain text (NO Markdown, no **bold**, no \`code\` ticks)."
       ;;
     
     minimal)
@@ -158,8 +178,6 @@ Do not mention filenames unless necessary. Do not end with a period."
       ;;
   esac
 }
-
-
 
 # ---------- diff ----------
 prepare_diff() {
@@ -198,7 +216,7 @@ invoke_shortcut() {
 
   if ! output=$(shortcuts run "Diffsense" 2>&1 <<< "$1"); then
     if grep -qiE "couldn.?t find shortcut" <<< "$output"; then
-      echo "❌ Couldn't find the 'Diffsensee' shortcut. Please install it from https://edgeleap.github.io/ 🚀" >&2
+      echo "❌ Couldn't find the 'Diffsensee' shortcut. Please install it from [https://edgeleap.github.io/](https://edgeleap.github.io/) 🚀" >&2
       return 1
     fi
 
@@ -232,7 +250,7 @@ diffsense() {
   local parsed ai_model message_style nopopup_suffix
   local diff header prompt payload commit_msg
 
-    # 0. Early help check BEFORE anything else
+  # 0. Early help check BEFORE anything else
   if [[ "$#" -gt 0 ]]; then
     case "$1" in
       -h|--help)
@@ -242,8 +260,6 @@ diffsense() {
     esac
   fi
 
-
-
   # 1. Parse arguments (Errors print to stderr and exit)
   if ! parsed=$(parse_args "$@"); then
     exit 1
@@ -252,6 +268,8 @@ diffsense() {
   ai_model=$(awk '{print $1}' <<< "$parsed")
   message_style=$(awk '{print $2}' <<< "$parsed")
   nopopup_suffix=$(awk '{print $3}' <<< "$parsed")
+
+  set_max_chars_for_model "$ai_model"
 
   # 2. Checks
   check_platform_and_arch || exit 1
