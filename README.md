@@ -54,7 +54,7 @@ Handle missing token case to prevent crash when API response is null.
 **Custom prompt instructions:**
 - `--byo <file>` - Use custom commit message rules from a file
   - Examples: 
-    `diffsense --byo=samplerules.md`
+    `diffsense --byo=samplerules.md`<br>
     `diffsense --byo=samplerules.md --minimal`
     `diffsense --byo=samplerules.md --verbose`
     `diffsense --byo=samplerules.md --minimal --gpt`
