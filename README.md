@@ -51,6 +51,16 @@ Handle missing token case to prevent crash when API response is null.
 - `--pcc` - Private Cloud Compute (more capable)
 - `--gpt` - ChatGPT 4o (best quality, quota limits)
 
+**Custom prompt instructions:**
+- `--byo <file>` - Use custom commit message rules from a file
+  - Examples: 
+    `diffsense --byo=samplerules.md`
+    `diffsense --byo=samplerules.md --minimal`
+    `diffsense --byo=samplerules.md --verbose`
+    `diffsense --byo=samplerules.md --minimal --gpt`
+    `diffsense --byo=samplerules.md --verbose --nopopup`
+  - See [cstm_cmt_msg_rules.md](cstm_cmt_msg_rules.md) for an example template
+
 **Workflow:**
 - `--nopopup` - Skip edit dialog (useful for agents)
 
