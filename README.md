@@ -26,7 +26,7 @@
 ### Install
 
 1. In terminal: `curl -fsSL https://edgeleap.github.io/install.sh | bash`  
-2. Download the [Diffsense.shortcut](https://github.com/edgeleap/diffsense/releases/latest/download/DiffSense.sh)
+2. Download the [Diffsense.shortcut](https://github.com/edgeleap/diffsense/releases/latest/download/Diffsense.shortcut)
 3. Stage your cahnges and call `diffsense` in your terminal
 
 **Example git commit message:**  
