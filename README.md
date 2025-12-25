@@ -54,12 +54,12 @@ Handle missing token case to prevent crash when API response is null.
 **Custom prompt instructions:**
 - `--byo <file>` - Use custom commit message rules from a file
   - Examples: <br>
-    `diffsense --byo=samplerules.md`
-    `diffsense --byo=samplerules.md --minimal`
-    `diffsense --byo=samplerules.md --verbose`
-    `diffsense --byo=samplerules.md --minimal --gpt`
-    `diffsense --byo=samplerules.md --verbose --nopopup`
-  - See [cstm_cmt_msg_rules.md](cstm_cmt_msg_rules.md) for an example template
+    `diffsense --byo=samplerules.md`<br>
+    `diffsense --byo=samplerules.md --minimal`<br>
+    `diffsense --byo=samplerules.md --verbose`<br>
+    `diffsense --byo=samplerules.md --minimal --gpt`<br>
+    `diffsense --byo=samplerules.md --verbose --nopopup`<br>
+  - See [cstm_cmt_msg_rules.md](cstm_cmt_msg_rules.md) for an example template<br>
 
 **Workflow:**
 - `--nopopup` - Skip edit dialog (useful for agents)
