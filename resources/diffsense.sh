@@ -149,7 +149,7 @@ set_max_chars_for_model() {
       DIFFSENSE_MAX_CHARS=1194000
       ;;
     *)
-      DIFFSENSE_MAX_CHARS=10000
+      DIFFSENSE_MAX_CHARS=8000
       ;;
   esac
 }
@@ -157,28 +157,32 @@ set_max_chars_for_model() {
 # ---------- help ----------
 print_help() {
   cat <<'EOF'
-Usage: diffsense [MESSAGE STYLE] [AI MODEL] [OPTIONS]
+Usage: diffsense [--byo=<path>] [STYLE] [MODEL] [OPTIONS]
+
+BYO (Bring Your Own Prompt):
+  --byo=<path>      Custom prompt file (max 400 chars), relative to current dir.
 
 STYLE:
-  default           Default style. Works when nothing is specified
-  verbose           Detailed multi-line commit message
-  minimal           Single-line, 72-char max subject
+  --default         Default style (if nothing specified)
+  --verbose         Detailed multi-line commit message
+  --minimal         Single-line, 50-char max subject
 
 MODEL:
-  afm               On-device (LOCAL) model. [DEFAULT MODEL]
-  pcc               Perplexity (PRIVATE) model
-  gpt               ChatGPT / OpenAI model
+  --afm             On-device (LOCAL) model [DEFAULT]
+  --pcc             Perplexity (PRIVATE) model
+  --gpt             ChatGPT / OpenAI model
 
 OPTIONS:
   --nopopup         Disable popup editor in the Shortcut
-  -h, --help        Show this help message and exit
+  -h, --help        Show this help message
 
 Examples:
   diffsense
   diffsense --verbose
   diffsense --verbose --gpt
+  diffsense --byo=.diffsense-prompt --verbose --gpt
+  diffsense --byo=prompts/rules.txt --minimal
   diffsense --nopopup
-  diffsense --minimal --nopopup
 EOF
 }
 
@@ -187,8 +191,15 @@ parse_args() {
   local message_style="default"
   local ai_model="afm"
   local nopopup_suffix=""
+  local byo_path=""
 
   for raw_arg in "$@"; do
+    # Handle --byo=path separately (before stripping --)
+    if [[ "$raw_arg" == --byo=* ]]; then
+      byo_path="${raw_arg#--byo=}"
+      continue
+    fi
+
     local arg="${raw_arg#--}"
 
     case "$arg" in
@@ -215,8 +226,10 @@ parse_args() {
     gpt) ai_model_internal="CHATGPT" ;;
   esac
 
-  echo "$ai_model_internal $message_style $nopopup_suffix"
+  # Use | as delimiter to handle empty fields
+  echo "${ai_model_internal}|${message_style}|${nopopup_suffix}|${byo_path}"
 }
+
 
 # ---------- platform ----------
 check_platform_and_arch() {
@@ -269,7 +282,6 @@ check_git_state() {
 }
 
 # ---------- build prompt ----------
-# ---------- build prompt ----------
 build_prompt() {
   case "$1" in
     verbose)
@@ -316,6 +328,67 @@ Constraints:
       ;;
   esac
 }
+
+# ---------- load BYO (bring your own) prompt ----------
+load_byo_prompt() {
+  local path="$1"
+  local max_chars=400
+
+  # No path provided = no BYO
+  if [[ -z "$path" ]]; then
+    return 0
+  fi
+
+  # Trim whitespace/newlines
+  path="${path#"${path%%[![:space:]]*}"}"
+  path="${path%"${path##*[![:space:]]}"}"
+
+  # Resolve path relative to current directory
+  local resolved_path
+  if [[ "$path" == /* ]]; then
+    resolved_path="$path"
+  elif [[ "$path" == ~* ]]; then
+    resolved_path="${path/#\~/$HOME}"
+  else
+    resolved_path="$(pwd)/$path"
+  fi
+
+  # Check file exists
+  if [[ ! -f "$resolved_path" ]]; then
+    echo "⚠️  BYO file not found: $path → Falling back to base prompt." >&2
+    return 0
+  fi
+
+  # Check file is readable
+  if [[ ! -r "$resolved_path" ]]; then
+    echo "⚠️  BYO file unreadable: $path → Falling back to base prompt." >&2
+    return 0
+  fi
+
+  # Read content using cat
+  local content
+  content=$(cat "$resolved_path")
+  if [[ $? -ne 0 ]]; then
+    echo "⚠️  BYO file parse error: $path → Falling back to base prompt." >&2
+    return 0
+  fi
+
+  # Check if empty
+  if [[ -z "$content" ]]; then
+    echo "⚠️  BYO file is empty: $path → Falling back to base prompt." >&2
+    return 0
+  fi
+
+  # Check length
+  if (( ${#content} > max_chars )); then
+    echo "⚠️  BYO exceeds ${max_chars} chars (${#content}) → Falling back to base prompt." >&2
+    return 0
+  fi
+
+  # Success
+  printf '%s' "$content"
+}
+
 
 
 # ---------- build exclude args ----------
@@ -557,7 +630,6 @@ build_allocated_diff() {
   echo "${preamble}${files_header}${file_summary}${diff_header}${final_diff}"
 }
 
-
 # ---------- prepare diff ----------
 prepare_diff() {
   local header="$1"
@@ -605,8 +677,8 @@ commit_changes() {
 
 # ---------- main ----------
 diffsense() {
-  local parsed ai_model message_style nopopup_suffix
-  local diff header prompt payload commit_msg
+  local parsed ai_model message_style nopopup_suffix byo_path
+  local diff header prompt byo_prompt payload commit_msg
 
   if [[ "$#" -gt 0 ]]; then
     case "$1" in
@@ -621,17 +693,28 @@ diffsense() {
     exit 1
   fi
 
-  ai_model=$(awk '{print $1}' <<< "$parsed")
-  message_style=$(awk '{print $2}' <<< "$parsed")
-  nopopup_suffix=$(awk '{print $3}' <<< "$parsed")
+  # Parse with | delimiter
+  IFS='|' read -r ai_model message_style nopopup_suffix byo_path <<< "$parsed"
 
+  
+ # DEBUG
   set_max_chars_for_model "$ai_model"
 
   check_platform_and_arch || exit 1
   check_is_git_repo
   check_git_state
 
+  # Build base prompt
   prompt=$(build_prompt "$message_style")
+
+  # Load and append BYO prompt if provided
+  if [[ -n "$byo_path" ]]; then
+    byo_prompt=$(load_byo_prompt "$byo_path")
+    if [[ -n "$byo_prompt" ]]; then
+      prompt="${prompt}"$'\n\n'"Additional Instructions:"$'\n'"${byo_prompt}"
+    fi
+  fi
+
   header="@@DIFFSENSE_META=${ai_model}${nopopup_suffix}"
 
   # Main diff strategy
@@ -639,7 +722,7 @@ diffsense() {
 
   payload="${header}"$'\n'"${prompt}"$'\n\n'"${diff}"
 
- # SAFETY: Final truncation to guarantee we never exceed the limit
+  # SAFETY: Final truncation to guarantee we never exceed the limit
   if (( ${#payload} > DIFFSENSE_MAX_CHARS )); then
     payload="${payload:0:DIFFSENSE_MAX_CHARS}"
   fi
@@ -647,5 +730,7 @@ diffsense() {
   commit_msg=$(invoke_shortcut "$payload") || exit 1
   commit_changes "$commit_msg"
 }
+
+diffsense "$@"
 
 diffsense "$@"
