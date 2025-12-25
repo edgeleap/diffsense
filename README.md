@@ -44,6 +44,7 @@ Handle missing token case to prevent crash when API response is null.
 - `diffsense` - Balanced (default)
 - `diffsense --verbose` - Detailed explanations
 - `diffsense --minimal` - Brief descriptions
+- `diffsense --byo '~/team_rules.md'` - Custom prompt instruction
 
 **AI models:**
 - `--afm` - On-device AFM 3B (default, private)
