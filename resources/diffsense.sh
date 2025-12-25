@@ -732,5 +732,3 @@ diffsense() {
 }
 
 diffsense "$@"
-
-diffsense "$@"
